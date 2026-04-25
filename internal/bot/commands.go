@@ -30,7 +30,7 @@ func ParseCommand(prefix, content string) (Command, bool) {
 
 func HelpMessage(prefix string) string {
 	return fmt.Sprintf(
-		"Comandos disponiveis:\n%splay <consulta> - adiciona uma faixa a fila\n%squeue - mostra a fila\n%spause - pausa a execucao\n%sresume - retoma a execucao\n%sskip - pula a faixa atual\n%sleave - limpa o estado do servidor\n%sping - verifica se o bot esta online",
+		"Available commands:\n%splay <query> - add a track to the queue\n%squeue - show the current queue\n%spause - pause playback\n%sresume - resume playback\n%sskip - skip the current track\n%sleave - clear the server state\n%sping - check whether the bot is online",
 		prefix,
 		prefix,
 		prefix,
@@ -43,26 +43,26 @@ func HelpMessage(prefix string) string {
 
 func FormatQueue(state PlaybackState) string {
 	if state.Current == nil && len(state.Queue) == 0 {
-		return "Fila vazia."
+		return "Queue is empty."
 	}
 
 	var builder strings.Builder
 
 	if state.Current != nil {
-		builder.WriteString("Tocando agora: ")
+		builder.WriteString("Now playing: ")
 		builder.WriteString(state.Current.DisplayName())
 		builder.WriteString("\n")
 	}
 
 	if len(state.Queue) > 0 {
-		builder.WriteString("Proximas faixas:\n")
+		builder.WriteString("Next tracks:\n")
 		for index, track := range state.Queue {
 			builder.WriteString(fmt.Sprintf("%d. %s\n", index+1, track.DisplayName()))
 		}
 	}
 
 	if state.Paused {
-		builder.WriteString("Status: pausado.\n")
+		builder.WriteString("Status: paused.\n")
 	}
 
 	return strings.TrimSpace(builder.String())

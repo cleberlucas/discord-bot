@@ -1,58 +1,58 @@
 # Discord Music Bot
 
-Base em Go e Docker para um bot de Discord focado em musica.
+A Go and Docker scaffold for a Discord music bot.
 
-Este scaffold usa uma camada de fila e comandos de texto com `discordgo`. A integracao de audio foi deixada agnostica de fonte por seguranca e para evitar dependencias de extracao nao autorizada do YouTube Music. Voce pode plugar depois uma fonte autorizada ou streams diretos que voce controle.
+This scaffold uses a queue layer and text commands with `discordgo`. The audio layer is intentionally source-agnostic for safety and to avoid unauthorized YouTube Music extraction dependencies. You can plug in an authorized provider or direct streams you control later.
 
-## Recursos incluidos
+## Included
 
-- Estrutura em Go com `cmd/` e `internal/`
-- Configuracao via variaveis de ambiente
-- Comandos basicos: `play`, `queue`, `pause`, `resume`, `skip`, `leave` e `ping`
-- Dockerfile e Docker Compose para build e execucao
-- Base pronta para evoluir para um adaptador de audio autorizado
+- Go project structure with `cmd/` and `internal/`
+- Environment-based configuration
+- Basic commands: `play`, `queue`, `pause`, `resume`, `skip`, `leave`, and `ping`
+- Dockerfile and Docker Compose support for build and runtime
+- A clean base for adding an authorized audio adapter later
 
-## Requisitos
+## Requirements
 
-- Go 1.22 ou superior
-- Docker, se quiser rodar em container
-- Um bot do Discord com token valido
-- Privileged intent de mensagem habilitado no portal do Discord, se usar comandos por prefixo
+- Go 1.22 or newer
+- Docker, if you want to run in a container
+- A Discord bot token
+- Message Content intent enabled in the Discord developer portal if you use prefix commands
 
-## Configuracao
+## Setup
 
-1. Exporte as variaveis de ambiente:
+1. Export the environment variables:
 
 ```bash
-export DISCORD_TOKEN="seu-token"
+export DISCORD_TOKEN="your-token"
 export COMMAND_PREFIX="!"
 export BOT_NAME="discord-music-bot"
 ```
 
-2. Rode localmente:
+2. Run locally:
 
 ```bash
 go mod tidy
 go run ./cmd/bot
 ```
 
-3. Gere a imagem Docker ou suba com Compose:
+3. Build the Docker image or start it with Compose:
 
 ```bash
 docker build -t discord-music-bot .
 docker compose up --build
 ```
 
-## Comandos
+## Commands
 
-- `!play <consulta>` adiciona uma faixa a fila
-- `!queue` mostra a fila atual
-- `!pause` pausa a execucao da fila
-- `!resume` retoma a execucao da fila
-- `!skip` pula para a proxima faixa
-- `!leave` limpa o estado do servidor
-- `!ping` responde com pong
+- `!play <query>` adds a track to the queue
+- `!queue` shows the current queue
+- `!pause` pauses playback
+- `!resume` resumes playback
+- `!skip` skips the current track
+- `!leave` clears the server state
+- `!ping` replies with pong
 
-## Observacao sobre YouTube Music
+## YouTube Music Note
 
-A base nao implementa extracao, download ou bypass de protecao do YouTube Music. Se voce precisar de reproducao real, conecte um provedor autorizado ou uma fonte de audio que voce controle.
+This scaffold does not implement YouTube Music extraction, downloads, or protection bypass. If you need real playback, connect an authorized provider or a source of audio you control.

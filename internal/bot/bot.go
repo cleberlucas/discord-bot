@@ -51,6 +51,7 @@ func (b *Bot) Run(ctx context.Context) error {
 	defer b.session.Close()
 
 	b.logger.Printf("bot %s iniciado com prefixo %q", b.cfg.Name, b.cfg.Prefix)
+	b.logger.Printf("bot %s started with prefix %q", b.cfg.Name, b.cfg.Prefix)
 
 	<-ctx.Done()
 	return nil
@@ -62,7 +63,7 @@ func (b *Bot) onReady(session *discordgo.Session, ready *discordgo.Ready) {
 		return
 	}
 
-	b.logger.Printf("conectado como %s#%s", ready.User.Username, ready.User.Discriminator)
+	b.logger.Printf("connected as %s#%s", ready.User.Username, ready.User.Discriminator)
 }
 
 func (b *Bot) onMessageCreate(session *discordgo.Session, message *discordgo.MessageCreate) {
@@ -76,7 +77,7 @@ func (b *Bot) onMessageCreate(session *discordgo.Session, message *discordgo.Mes
 	}
 
 	if message.GuildID == "" {
-		b.reply(message.ChannelID, "Use este bot em um servidor do Discord.")
+		b.reply(message.ChannelID, "Use this bot in a Discord server.")
 		return
 	}
 
@@ -96,33 +97,33 @@ func (b *Bot) onMessageCreate(session *discordgo.Session, message *discordgo.Mes
 			b.reply(message.ChannelID, err.Error())
 			return
 		}
-		b.reply(message.ChannelID, fmt.Sprintf("Execucao pausada.\n%s", FormatQueue(state)))
+		b.reply(message.ChannelID, fmt.Sprintf("Playback paused.\n%s", FormatQueue(state)))
 	case "resume":
 		state, err := b.player.Resume(message.GuildID)
 		if err != nil {
 			b.reply(message.ChannelID, err.Error())
 			return
 		}
-		b.reply(message.ChannelID, fmt.Sprintf("Execucao retomada.\n%s", FormatQueue(state)))
+		b.reply(message.ChannelID, fmt.Sprintf("Playback resumed.\n%s", FormatQueue(state)))
 	case "skip":
 		state, err := b.player.Skip(message.GuildID)
 		if err != nil {
 			b.reply(message.ChannelID, err.Error())
 			return
 		}
-		b.reply(message.ChannelID, fmt.Sprintf("Faixa pulada.\n%s", FormatQueue(state)))
+		b.reply(message.ChannelID, fmt.Sprintf("Track skipped.\n%s", FormatQueue(state)))
 	case "leave":
 		b.player.Leave(message.GuildID)
-		b.reply(message.ChannelID, "Estado do servidor removido.")
+		b.reply(message.ChannelID, "Server state cleared.")
 	default:
-		b.reply(message.ChannelID, fmt.Sprintf("Comando desconhecido.\n%s", HelpMessage(b.cfg.Prefix)))
+		b.reply(message.ChannelID, fmt.Sprintf("Unknown command.\n%s", HelpMessage(b.cfg.Prefix)))
 	}
 }
 
 func (b *Bot) handlePlay(message *discordgo.MessageCreate, command Command) {
 	query := strings.TrimSpace(command.Args)
 	if query == "" {
-		b.reply(message.ChannelID, fmt.Sprintf("Uso: %splay <consulta>", b.cfg.Prefix))
+		b.reply(message.ChannelID, fmt.Sprintf("Usage: %splay <query>", b.cfg.Prefix))
 		return
 	}
 
@@ -136,11 +137,11 @@ func (b *Bot) handlePlay(message *discordgo.MessageCreate, command Command) {
 	state := b.player.Enqueue(message.GuildID, track)
 
 	if state.Current != nil && state.Current.DisplayName() == track.DisplayName() && len(state.Queue) == 0 {
-		b.reply(message.ChannelID, fmt.Sprintf("Faixa selecionada: %s\nA integracao de audio ainda esta no modo base para adaptadores autorizados.", track.DisplayName()))
+		b.reply(message.ChannelID, fmt.Sprintf("Track selected: %s\nAudio playback is still in base mode for authorized adapters.", track.DisplayName()))
 		return
 	}
 
-	b.reply(message.ChannelID, fmt.Sprintf("Adicionado a fila: %s\n%s", track.DisplayName(), FormatQueue(state)))
+	b.reply(message.ChannelID, fmt.Sprintf("Added to the queue: %s\n%s", track.DisplayName(), FormatQueue(state)))
 }
 
 func (b *Bot) reply(channelID, content string) {
