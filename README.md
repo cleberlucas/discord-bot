@@ -56,3 +56,5 @@ docker compose up --build
 ## YouTube Music Note
 
 This scaffold does not implement YouTube Music extraction, downloads, or protection bypass. If you need real playback, connect an authorized provider or a source of audio you control.
+
+# discord-bot
