@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 
@@ -88,6 +89,8 @@ func (b *Bot) onMessageCreate(session *discordgo.Session, message *discordgo.Mes
 		b.reply(message.ChannelID, HelpMessage(b.cfg.Prefix))
 	case "play":
 		b.handlePlay(message, command)
+	case "playlist", "playplaylist":
+		b.handlePlaylist(message, command)
 	case "queue":
 		state := b.player.Snapshot(message.GuildID)
 		b.reply(message.ChannelID, FormatQueue(state))
@@ -142,6 +145,35 @@ func (b *Bot) handlePlay(message *discordgo.MessageCreate, command Command) {
 	}
 
 	b.reply(message.ChannelID, fmt.Sprintf("Added to the queue: %s\n%s", track.DisplayName(), FormatQueue(state)))
+}
+
+func (b *Bot) handlePlaylist(message *discordgo.MessageCreate, command Command) {
+	playlistURL := strings.TrimSpace(command.Args)
+	if playlistURL == "" {
+		b.reply(message.ChannelID, fmt.Sprintf("Usage: %splaylist <public-url>", b.cfg.Prefix))
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	entries, err := FetchPlaylistEntries(ctx, playlistURL)
+	if err != nil {
+		b.reply(message.ChannelID, err.Error())
+		return
+	}
+
+	var state PlaybackState
+	for _, entry := range entries {
+		track := Track{
+			Title:       entry.Title,
+			Query:       entry.Query,
+			RequestedBy: message.Author.Username,
+		}
+		state = b.player.Enqueue(message.GuildID, track)
+	}
+
+	b.reply(message.ChannelID, fmt.Sprintf("Playlist loaded: %d tracks from %s\n%s", len(entries), playlistURL, FormatQueue(state)))
 }
 
 func (b *Bot) reply(channelID, content string) {
